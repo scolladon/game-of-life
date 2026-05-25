@@ -1,0 +1,51 @@
+{
+  "name": "game-of-life",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check",
+    "format": "biome format --write",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "doctor": "tsx check/doctor.ts",
+    "check": "tsx check/run-all.ts",
+    "check:1.4": "tsx check/check-1.4.ts",
+    "check:2.1": "tsx check/check-2.1.ts",
+    "check:2.2": "tsx check/check-2.2.ts",
+    "check:2.3": "tsx check/check-2.3.ts",
+    "check:2.4": "tsx check/check-2.4.ts",
+    "check:2.5": "tsx check/check-2.5.ts",
+    "check:2.6": "tsx check/check-2.6.ts",
+    "check:2.7": "tsx check/check-2.7.ts",
+    "check:2.8": "tsx check/check-2.8.ts",
+    "check:2.9": "tsx check/check-2.9.ts",
+    "check:3.1": "tsx check/check-3.1.ts",
+    "check:3.2": "tsx check/check-3.2.ts",
+    "check:3.3": "tsx check/check-3.3.ts",
+    "check:4.1": "tsx check/check-4.1.ts",
+    "check:4.2": "tsx check/check-4.2.ts"
+  },
+  "dependencies": {
+    "next": "16.2.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@playwright/test": "^1.60.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.7",
+    "tailwindcss": "^4",
+    "tsx": "^4.22.3",
+    "typescript": "^5",
+    "vitest": "^4.1.7"
+  }
+}
