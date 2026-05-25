@@ -6,7 +6,7 @@
 //   - au moins un mécanisme pour changer de modèle ad-hoc ;
 //   - le levier extended thinking.
 //
-// Le `@AGENTS.md` initial doit rester en place (semence Architecture harness,
+// Le `@AGENTS.md` initial doit rester en place (seed Architecture harness,
 // complétée en §2.3).
 
 import { existsSync, readFileSync } from 'node:fs';
