@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code — on VEUT versionner .claude/ (settings projet, agents, skills…)
+# (override l'éventuel `.claude` dans ~/.gitignore global)
+!.claude/
+# … mais surtout pas les overrides perso, secrets, logs
+.claude/settings.local.json
+.claude/*.local.json
+.claude/logs/

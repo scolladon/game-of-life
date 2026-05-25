@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(tsx:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Read(*)",
+      "Edit(src/**)",
+      "Edit(check/**)",
+      "Edit(prompts/**)",
+      "Edit(CLAUDE.md)",
+      "Edit(AGENTS.md)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Edit(.env*)",
+      "Edit(node_modules/**)"
+    ],
+    "ask": [
+      "Bash(gh:*)",
+      "WebFetch"
+    ]
+  }
+}
