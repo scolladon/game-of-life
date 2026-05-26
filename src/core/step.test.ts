@@ -37,7 +37,7 @@ describe('step — règles Conway B3/S23', () => {
     expect(sut).toEqual(block);
   });
 
-  it('glider se déplace d\'une case en diagonale après 4 steps', () => {
+  it("glider se déplace d'une case en diagonale après 4 steps", () => {
     const initial: Grid = [
       [_, _, _, _, _, _],
       [_, _, O, _, _, _],
@@ -61,7 +61,31 @@ describe('step — règles Conway B3/S23', () => {
     expect(sut).toEqual(after4);
   });
 
-  it('ne mute pas la grille d\'entrée', () => {
+  it('toad oscille entre forme T horizontale et verticale (période 2)', () => {
+    const horizontal: Grid = [
+      [_, _, _, _, _, _],
+      [_, _, _, _, _, _],
+      [_, _, O, O, O, _],
+      [_, O, O, O, _, _],
+      [_, _, _, _, _, _],
+      [_, _, _, _, _, _],
+    ];
+    const vertical: Grid = [
+      [_, _, _, _, _, _],
+      [_, _, _, O, _, _],
+      [_, O, _, _, O, _],
+      [_, O, _, _, O, _],
+      [_, _, O, _, _, _],
+      [_, _, _, _, _, _],
+    ];
+
+    const sut = step(horizontal);
+
+    expect(sut).toEqual(vertical);
+    expect(step(sut)).toEqual(horizontal);
+  });
+
+  it("ne mute pas la grille d'entrée", () => {
     const blinker: Grid = [
       [_, _, _],
       [O, O, O],

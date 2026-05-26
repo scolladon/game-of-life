@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Grid } from '@/core/grid';
 import { step } from '@/core/step';
+import { GenerationCounter } from './GenerationCounter';
 
 interface BoardProps {
   readonly initialGrid: Grid;
@@ -10,16 +11,25 @@ interface BoardProps {
 
 export function Board({ initialGrid }: BoardProps) {
   const [grid, setGrid] = useState<Grid>(initialGrid);
+  const [generation, setGeneration] = useState<number>(0);
+
+  const handleNext = () => {
+    setGrid((current) => step(current));
+    setGeneration((n) => n + 1);
+  };
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <button
-        type="button"
-        onClick={() => setGrid((current) => step(current))}
-        className="rounded border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
-      >
-        Next
-      </button>
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={handleNext}
+          className="rounded border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+        >
+          Next
+        </button>
+        <GenerationCounter count={generation} />
+      </div>
       <div
         role="grid"
         aria-label="Game of Life board"
