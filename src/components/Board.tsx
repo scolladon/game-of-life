@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import type { Grid } from '@/core/grid';
+import { getPattern, type PatternName } from '@/core/patterns';
 import { step } from '@/core/step';
 import { GenerationCounter } from './GenerationCounter';
+import { PatternSelector } from './PatternSelector';
 
 interface BoardProps {
   readonly initialGrid: Grid;
+  readonly initialPattern?: PatternName;
 }
 
-export function Board({ initialGrid }: BoardProps) {
+export function Board({ initialGrid, initialPattern = 'blinker' }: BoardProps) {
+  const [pattern, setPattern] = useState<PatternName>(initialPattern);
   const [grid, setGrid] = useState<Grid>(initialGrid);
   const [generation, setGeneration] = useState<number>(0);
 
@@ -18,9 +22,16 @@ export function Board({ initialGrid }: BoardProps) {
     setGeneration((n) => n + 1);
   };
 
+  const handlePatternChange = (name: PatternName) => {
+    setPattern(name);
+    setGrid(getPattern(name));
+    setGeneration(0);
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-4">
+        <PatternSelector value={pattern} onChange={handlePatternChange} />
         <button
           type="button"
           onClick={handleNext}
