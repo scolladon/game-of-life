@@ -47,3 +47,8 @@ next-env.d.ts
 .claude/settings.local.json
 .claude/*.local.json
 .claude/logs/
+
+# persistance SQLite locale (§3.3) — la DB ne doit jamais être versionnée
+/data/
+*.db
+*.db-journal

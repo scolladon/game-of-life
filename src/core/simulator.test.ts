@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Grid } from './grid';
+import { CONWAY, HIGHLIFE } from './rules';
 import {
   createSimulator,
   reset,
   type SimulatorState,
+  setRule,
   setRunning,
   setSpeed,
   tick,
@@ -39,6 +41,30 @@ describe('createSimulator', () => {
   it('given a non-positive speed when created then throws', () => {
     expect(() => createSimulator(BLINKER_H, 0)).toThrow(RangeError);
     expect(() => createSimulator(BLINKER_H, -50)).toThrow(RangeError);
+  });
+
+  it('given no explicit rule when created then defaults to Conway', () => {
+    const sut = createSimulator(BLINKER_H, 200);
+
+    expect(sut.rule).toBe(CONWAY);
+  });
+
+  it('given an explicit rule when created then exposes it on state', () => {
+    const sut = createSimulator(BLINKER_H, 200, HIGHLIFE);
+
+    expect(sut.rule).toBe(HIGHLIFE);
+  });
+});
+
+describe('setRule', () => {
+  it('given a state when rule is changed then returns a new state with the new rule', () => {
+    const initial = createSimulator(BLINKER_H, 200);
+
+    const sut = setRule(initial, HIGHLIFE);
+
+    expect(sut.rule).toBe(HIGHLIFE);
+    expect(sut).not.toBe(initial);
+    expect(initial.rule).toBe(CONWAY);
   });
 });
 

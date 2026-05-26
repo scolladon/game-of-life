@@ -8,6 +8,7 @@ interface SimulatorControlsProps {
   readonly onStep: () => void;
   readonly onReset: () => void;
   readonly onSpeedChange: (speedMs: number) => void;
+  readonly onSave: () => void | Promise<void>;
 }
 
 const BUTTON_CLASS =
@@ -21,6 +22,7 @@ export function SimulatorControls({
   onStep,
   onReset,
   onSpeedChange,
+  onSave,
 }: SimulatorControlsProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -35,6 +37,9 @@ export function SimulatorControls({
       </button>
       <button type="button" className={BUTTON_CLASS} onClick={onReset}>
         Reset
+      </button>
+      <button type="button" className={BUTTON_CLASS} onClick={() => void onSave()}>
+        Save state
       </button>
       <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
         <span>Speed</span>

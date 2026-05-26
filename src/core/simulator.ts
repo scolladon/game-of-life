@@ -1,4 +1,5 @@
 import { cloneGrid, type Grid } from './grid';
+import { CONWAY, type Rule } from './rules';
 import { step } from './step';
 
 export interface SimulatorState {
@@ -6,6 +7,7 @@ export interface SimulatorState {
   readonly generation: number;
   readonly speedMs: number;
   readonly isRunning: boolean;
+  readonly rule: Rule;
 }
 
 function assertPositiveSpeed(speedMs: number): void {
@@ -14,20 +16,25 @@ function assertPositiveSpeed(speedMs: number): void {
   }
 }
 
-export function createSimulator(initialGrid: Grid, speedMs: number): SimulatorState {
+export function createSimulator(
+  initialGrid: Grid,
+  speedMs: number,
+  rule: Rule = CONWAY,
+): SimulatorState {
   assertPositiveSpeed(speedMs);
   return {
     grid: cloneGrid(initialGrid),
     generation: 0,
     speedMs,
     isRunning: false,
+    rule,
   };
 }
 
 export function tick(state: SimulatorState): SimulatorState {
   return {
     ...state,
-    grid: step(state.grid),
+    grid: step(state.grid, state.rule),
     generation: state.generation + 1,
   };
 }
@@ -39,6 +46,10 @@ export function setSpeed(state: SimulatorState, speedMs: number): SimulatorState
 
 export function setRunning(state: SimulatorState, isRunning: boolean): SimulatorState {
   return { ...state, isRunning };
+}
+
+export function setRule(state: SimulatorState, rule: Rule): SimulatorState {
+  return { ...state, rule };
 }
 
 export function reset(state: SimulatorState, initialGrid: Grid): SimulatorState {

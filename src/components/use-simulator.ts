@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Grid } from '@/core/grid';
 import { getPatternLibraryEntry } from '@/core/pattern-library';
+import { CONWAY, getRule } from '@/core/rules';
 import {
   createSimulator,
   reset as resetSimulator,
   type SimulatorState,
+  setRule,
   setRunning,
   setSpeed,
   tick,
@@ -25,6 +27,8 @@ interface SimulatorHandlers {
   readonly onReset: () => void;
   readonly onSpeedChange: (speedMs: number) => void;
   readonly onPatternChange: (name: string) => void;
+  readonly onRuleChange: (name: string) => void;
+  readonly onSave: () => Promise<void>;
 }
 
 interface SimulatorHook {
@@ -44,7 +48,7 @@ export function useSimulator({
 }: UseSimulatorOptions): SimulatorHook {
   const [pattern, setPattern] = useState<string>(initialPattern);
   const [state, setState] = useState<SimulatorState>(() =>
-    createSimulator(initialGrid, initialSpeedMs),
+    createSimulator(initialGrid, initialSpeedMs, CONWAY),
   );
 
   useEffect(() => {
@@ -80,9 +84,42 @@ export function useSimulator({
     setState((current) => resetSimulator(current, gridFor(name)));
   }, []);
 
+  const onRuleChange = useCallback(
+    (name: string) => {
+      const rule = getRule(name);
+      setState((current) => {
+        const reset = resetSimulator(current, gridFor(pattern));
+        return setRule(reset, rule);
+      });
+    },
+    [pattern],
+  );
+
+  const onSave = useCallback(async () => {
+    await fetch('/api/state', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        patternName: pattern,
+        generation: state.generation,
+        ruleName: state.rule.name,
+        grid: state.grid,
+      }),
+    });
+  }, [pattern, state.generation, state.rule, state.grid]);
+
   return {
     state,
     pattern,
-    handlers: { onPlay, onPause, onStep, onReset, onSpeedChange, onPatternChange },
+    handlers: {
+      onPlay,
+      onPause,
+      onStep,
+      onReset,
+      onSpeedChange,
+      onPatternChange,
+      onRuleChange,
+      onSave,
+    },
   };
 }

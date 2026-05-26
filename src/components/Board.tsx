@@ -5,6 +5,7 @@ import type { Grid } from '@/core/grid';
 import { drawGrid } from './Board.draw';
 import { GenerationCounter } from './GenerationCounter';
 import { PatternSelector } from './PatternSelector';
+import { RuleSelector } from './RuleSelector';
 import { SimulatorControls } from './SimulatorControls';
 import { useSimulator } from './use-simulator';
 
@@ -37,6 +38,7 @@ export function Board({
     <div className="flex flex-col items-center gap-4">
       <div className="flex flex-wrap items-center gap-4">
         <PatternSelector value={pattern} onChange={handlers.onPatternChange} />
+        <RuleSelector value={state.rule.name} onChange={handlers.onRuleChange} />
         <GenerationCounter count={state.generation} />
       </div>
       <SimulatorControls
@@ -47,6 +49,7 @@ export function Board({
         onStep={handlers.onStep}
         onReset={handlers.onReset}
         onSpeedChange={handlers.onSpeedChange}
+        onSave={handlers.onSave}
       />
       <canvas
         ref={canvasRef}
