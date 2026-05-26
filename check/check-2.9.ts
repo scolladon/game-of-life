@@ -125,10 +125,16 @@ if (!existsSync(CONTROLS_PATH)) {
 }
 
 // 5. Board monte canvas + SimulatorControls + utilise le simulator.
+// Tolérance forward-compat §3.1 : l'import du simulator et la boucle
+// `setInterval` peuvent être déplacés dans un custom hook extrait
+// (`use-simulator.ts`). On agrège les surfaces pertinentes.
 if (!existsSync(BOARD_PATH)) {
   errors.push(`Fichier introuvable : ${BOARD_PATH}.`);
 } else {
   const board = readFileSync(BOARD_PATH, 'utf-8');
+  const hookPath = 'src/components/use-simulator.ts';
+  const hook = existsSync(hookPath) ? readFileSync(hookPath, 'utf-8') : '';
+  const boardSurface = `${board}\n${hook}`;
   if (!/<canvas\b/.test(board)) {
     errors.push(
       `${BOARD_PATH} doit rendre un \`<canvas>\` HTML5 à la place de l'ancienne grille DOM.`,
@@ -137,17 +143,19 @@ if (!existsSync(BOARD_PATH)) {
   if (!/<SimulatorControls\b/.test(board)) {
     errors.push(`${BOARD_PATH} doit monter \`<SimulatorControls ... />\`.`);
   }
-  if (!/from\s+['"]@\/core\/simulator['"]/.test(board)) {
-    errors.push(`${BOARD_PATH} doit importer le simulator depuis \`@/core/simulator\`.`);
+  if (!/from\s+['"]@\/core\/simulator['"]/.test(boardSurface)) {
+    errors.push(
+      `${BOARD_PATH} (ou son hook extrait) doit importer le simulator depuis \`@/core/simulator\`.`,
+    );
   }
   if (!/useRef\s*</.test(board)) {
     errors.push(
       `${BOARD_PATH} doit utiliser \`useRef<HTMLCanvasElement>\` pour piloter le canvas.`,
     );
   }
-  if (!/setInterval\s*\(/.test(board)) {
+  if (!/setInterval\s*\(/.test(boardSurface)) {
     errors.push(
-      `${BOARD_PATH} doit démarrer une boucle d'animation (\`setInterval\`) quand \`isRunning\` est vrai.`,
+      `${BOARD_PATH} (ou son hook extrait) doit démarrer une boucle d'animation (\`setInterval\`) quand \`isRunning\` est vrai.`,
     );
   }
 }
