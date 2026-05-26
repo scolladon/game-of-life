@@ -1,4 +1,5 @@
 import { Board } from '@/components/Board';
+import { PatternsCloud } from '@/components/PatternsCloud';
 import { getPattern } from '@/core/patterns';
 
 export default function Home() {
@@ -12,6 +13,9 @@ export default function Home() {
       <p className="max-w-md text-center text-sm text-zinc-600 dark:text-zinc-400">
         Choisis un seed dans le menu, puis clique « Next » pour faire avancer d'une génération.
       </p>
+      <div className="w-full max-w-md">
+        <PatternsCloud />
+      </div>
     </main>
   );
 }

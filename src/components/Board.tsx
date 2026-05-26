@@ -7,6 +7,7 @@ import { GenerationCounter } from './GenerationCounter';
 import { PatternSelector } from './PatternSelector';
 import { RuleSelector } from './RuleSelector';
 import { SimulatorControls } from './SimulatorControls';
+import { ThemeToggle } from './ThemeToggle';
 import { useSimulator } from './use-simulator';
 
 interface BoardProps {
@@ -40,6 +41,7 @@ export function Board({
         <PatternSelector value={pattern} onChange={handlers.onPatternChange} />
         <RuleSelector value={state.rule.name} onChange={handlers.onRuleChange} />
         <GenerationCounter count={state.generation} />
+        <ThemeToggle />
       </div>
       <SimulatorControls
         isRunning={state.isRunning}
@@ -55,7 +57,7 @@ export function Board({
         ref={canvasRef}
         role="img"
         aria-label="Game of Life board"
-        className="border border-zinc-300 dark:border-zinc-700"
+        className="game-board border border-zinc-300 dark:border-zinc-700"
       />
     </div>
   );

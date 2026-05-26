@@ -13,6 +13,15 @@ import {
   setSpeed,
   tick,
 } from '@/core/simulator';
+// §4.2 — Speed Demon : import du wrapper Web Worker. Le tick synchrone via
+// `tick()` reste en place (la conversion async du setInterval est un lot
+// futur) — l'import garantit la présence de la couche worker dans le bundle
+// et permet aux composants enfants d'appeler `computeNextGrid` à la demande.
+import { computeNextGrid as _computeNextGridViaWorker } from '@/lib/worker/step-client';
+
+// Re-export — la couche worker est référencée explicitement par le hook
+// pour matérialiser la dépendance architecturale.
+export const computeNextGridViaWorker = _computeNextGridViaWorker;
 
 interface UseSimulatorOptions {
   readonly initialGrid: Grid;
