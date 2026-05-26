@@ -79,17 +79,24 @@ if (!existsSync(BOARD_PATH)) {
   // Tolérance forward-compat §2.9 : Board peut soit appeler `step(` directement
   // (état §2.6), soit passer par `tick(` du simulator (état §2.9 — qui contient
   // l'appel à `step` au niveau de `core/simulator.ts`).
-  if (!/step\s*\(|tick\s*\(/.test(board)) {
+  // Tolérance forward-compat §3.1 : la mécanique peut vivre dans le custom hook
+  // extrait `use-simulator.ts`. On agrège les surfaces avant la recherche.
+  const hookPath = 'src/components/use-simulator.ts';
+  const hook = existsSync(hookPath) ? readFileSync(hookPath, 'utf-8') : '';
+  const boardSurface = `${board}\n${hook}`;
+  if (!/step\s*\(|tick\s*\(/.test(boardSurface)) {
     errors.push(
-      `${BOARD_PATH} doit avancer d'une génération (\`step(\` directement ou \`tick(\` via le simulator §2.9).`,
+      `${BOARD_PATH} (ou son hook extrait) doit avancer d'une génération (\`step(\` directement ou \`tick(\` via le simulator §2.9).`,
     );
   }
   if (
     !/from\s+['"]@\/core\/(step|simulator)['"]|from\s+['"]\.\.\/core\/(step|simulator)['"]/.test(
-      board,
+      boardSurface,
     )
   ) {
-    errors.push(`${BOARD_PATH} doit importer \`step\` ou le simulator depuis \`@/core/\`.`);
+    errors.push(
+      `${BOARD_PATH} (ou son hook extrait) doit importer \`step\` ou le simulator depuis \`@/core/\`.`,
+    );
   }
 }
 

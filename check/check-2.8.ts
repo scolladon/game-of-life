@@ -137,21 +137,27 @@ if (!existsSync(BOARD_PATH)) {
   errors.push(`Fichier introuvable : ${BOARD_PATH}.`);
 } else {
   const board = readFileSync(BOARD_PATH, 'utf-8');
+  // Tolérance forward-compat §3.1 : la gestion d'état (getPattern, reset)
+  // peut être déléguée à un custom hook extrait (`use-simulator.ts`).
+  // On agrège les sources pertinentes avant de chercher les preuves.
+  const hookPath = 'src/components/use-simulator.ts';
+  const hook = existsSync(hookPath) ? readFileSync(hookPath, 'utf-8') : '';
+  const boardSurface = `${board}\n${hook}`;
   if (!/<PatternSelector\b/.test(board)) {
     errors.push(`${BOARD_PATH} doit monter \`<PatternSelector ... />\`.`);
   }
-  if (!/getPattern\b/.test(board)) {
+  if (!/getPattern\b/.test(boardSurface)) {
     errors.push(
-      `${BOARD_PATH} doit appeler \`getPattern\` pour charger la grille depuis le catalogue.`,
+      `${BOARD_PATH} (ou son hook extrait) doit appeler \`getPattern\` pour charger la grille depuis le catalogue.`,
     );
   }
   // Reset de la génération sur changement de pattern.
-  // Tolérance forward-compat §2.9 : soit `setGeneration(0)` direct (état §2.8),
-  // soit délégation à `reset(...)` du simulator (état §2.9, qui resette
-  // `generation` à 0 en interne).
-  if (!/setGeneration\s*\(\s*0\s*\)|\breset\w*\s*\(/.test(board)) {
+  // Tolérance §2.9 : soit `setGeneration(0)` direct, soit délégation à
+  // `reset(...)` du simulator (état §2.9, qui resette `generation` à 0).
+  // Tolérance §3.1 : la logique peut vivre dans `use-simulator.ts`.
+  if (!/setGeneration\s*\(\s*0\s*\)|\breset\w*\s*\(/.test(boardSurface)) {
     errors.push(
-      `${BOARD_PATH} doit remettre \`generation\` à 0 lorsque le pattern change (\`setGeneration(0)\` ou \`reset(...)\` du simulator §2.9).`,
+      `${BOARD_PATH} (ou son hook extrait) doit remettre \`generation\` à 0 lorsque le pattern change (\`setGeneration(0)\` ou \`reset(...)\` du simulator §2.9).`,
     );
   }
 }
