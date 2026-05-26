@@ -1,0 +1,70 @@
+# Engineering harness §4.1 — CI miroir du `/quality-gate` local.
+#
+# Rejoue les mêmes commandes que les sous-agents qualité côté serveur :
+#   - lint      : `npm run lint` (Biome)
+#   - test      : `npm run test:run` (Vitest)
+#   - check     : `npm run check` (suite des checks de formation 1.4 → 4.x)
+#   - typecheck : `npx tsc --noEmit` (TypeScript strict)
+#
+# Pas de secrets, pas de service externe payant — le repo est public.
+# Cache npm activé via actions/setup-node@v4.
+# Aucune interpolation d'entrée non-fiable (titre PR, body, etc.) dans run:.
+#
+# Voir aussi : .claude/commands/quality-gate.md (équivalent local).
+
+name: CI
+
+on:
+  push:
+    branches: [main, solution]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint (Biome)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
+  test:
+    name: Test (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:run
+
+  check:
+    name: Check (formation)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run check
+
+  typecheck:
+    name: Typecheck (tsc --noEmit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx tsc --noEmit
