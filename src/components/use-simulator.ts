@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Grid } from '@/core/grid';
-import { getPattern, type PatternName } from '@/core/patterns';
+import { getPatternLibraryEntry } from '@/core/pattern-library';
 import {
   createSimulator,
   reset as resetSimulator,
@@ -14,7 +14,7 @@ import {
 
 interface UseSimulatorOptions {
   readonly initialGrid: Grid;
-  readonly initialPattern: PatternName;
+  readonly initialPattern: string;
   readonly initialSpeedMs: number;
 }
 
@@ -24,13 +24,17 @@ interface SimulatorHandlers {
   readonly onStep: () => void;
   readonly onReset: () => void;
   readonly onSpeedChange: (speedMs: number) => void;
-  readonly onPatternChange: (name: PatternName) => void;
+  readonly onPatternChange: (name: string) => void;
 }
 
 interface SimulatorHook {
   readonly state: SimulatorState;
-  readonly pattern: PatternName;
+  readonly pattern: string;
   readonly handlers: SimulatorHandlers;
+}
+
+function gridFor(name: string): Grid {
+  return getPatternLibraryEntry(name).grid;
 }
 
 export function useSimulator({
@@ -38,7 +42,7 @@ export function useSimulator({
   initialPattern,
   initialSpeedMs,
 }: UseSimulatorOptions): SimulatorHook {
-  const [pattern, setPattern] = useState<PatternName>(initialPattern);
+  const [pattern, setPattern] = useState<string>(initialPattern);
   const [state, setState] = useState<SimulatorState>(() =>
     createSimulator(initialGrid, initialSpeedMs),
   );
@@ -64,16 +68,16 @@ export function useSimulator({
   }, []);
 
   const onReset = useCallback(() => {
-    setState((current) => resetSimulator(current, getPattern(pattern)));
+    setState((current) => resetSimulator(current, gridFor(pattern)));
   }, [pattern]);
 
   const onSpeedChange = useCallback((speedMs: number) => {
     setState((current) => setSpeed(current, speedMs));
   }, []);
 
-  const onPatternChange = useCallback((name: PatternName) => {
+  const onPatternChange = useCallback((name: string) => {
     setPattern(name);
-    setState((current) => resetSimulator(current, getPattern(name)));
+    setState((current) => resetSimulator(current, gridFor(name)));
   }, []);
 
   return {

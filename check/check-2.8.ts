@@ -125,8 +125,10 @@ if (!existsSync(SELECTOR_PATH)) {
   if (!/export\s+function\s+PatternSelector\b/.test(selector)) {
     errors.push(`${SELECTOR_PATH} doit exporter \`function PatternSelector\` (export nommé).`);
   }
-  if (!/value\s*:\s*PatternName/.test(selector)) {
-    errors.push(`${SELECTOR_PATH} doit typer une prop \`value: PatternName\`.`);
+  // Tolérance §3.2 : la bibliothèque RLE généralise les patterns en
+  // strings nommées (au-delà du tuple fermé `PatternName`).
+  if (!/value\s*:\s*(PatternName|string)\b/.test(selector)) {
+    errors.push(`${SELECTOR_PATH} doit typer une prop \`value: PatternName\` (ou \`string\` à partir de §3.2).`);
   }
   if (!/onChange\s*:\s*\(/.test(selector)) {
     errors.push(`${SELECTOR_PATH} doit exposer un callback \`onChange\`.`);
@@ -146,9 +148,11 @@ if (!existsSync(BOARD_PATH)) {
   if (!/<PatternSelector\b/.test(board)) {
     errors.push(`${BOARD_PATH} doit monter \`<PatternSelector ... />\`.`);
   }
-  if (!/getPattern\b/.test(boardSurface)) {
+  // Tolérance §3.2 : `getPattern` peut être remplacé par
+  // `getPatternLibraryEntry` (lookup typé sur la bibliothèque RLE).
+  if (!/getPattern(LibraryEntry)?\b/.test(boardSurface)) {
     errors.push(
-      `${BOARD_PATH} (ou son hook extrait) doit appeler \`getPattern\` pour charger la grille depuis le catalogue.`,
+      `${BOARD_PATH} (ou son hook extrait) doit appeler \`getPattern\` (§2.8) ou \`getPatternLibraryEntry\` (§3.2) pour charger la grille depuis le catalogue.`,
     );
   }
   // Reset de la génération sur changement de pattern.

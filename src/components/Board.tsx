@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import type { Grid } from '@/core/grid';
-import type { PatternName } from '@/core/patterns';
 import { drawGrid } from './Board.draw';
 import { GenerationCounter } from './GenerationCounter';
 import { PatternSelector } from './PatternSelector';
@@ -11,7 +10,7 @@ import { useSimulator } from './use-simulator';
 
 interface BoardProps {
   readonly initialGrid: Grid;
-  readonly initialPattern?: PatternName;
+  readonly initialPattern?: string;
   readonly initialSpeedMs?: number;
 }
 
