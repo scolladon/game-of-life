@@ -18,9 +18,10 @@ export default function Home() {
       <h2 className="text-2xl font-medium text-zinc-700 dark:text-zinc-300">
         Le jeu de la vie de Conway
       </h2>
-      <Board grid={blinkerSeed} />
+      <Board initialGrid={blinkerSeed} />
       <p className="max-w-md text-center text-sm text-zinc-600 dark:text-zinc-400">
-        Seed initial : un blinker (oscillateur de période 2).
+        Seed initial : un blinker. Clique « Next » pour faire avancer d'une
+        génération.
       </p>
     </main>
   );
