@@ -43,7 +43,9 @@ if (!existsSync(MCP_PATH)) {
       } else {
         const server = servers[context7Key];
         if (!server || typeof server.command !== 'string' || server.command.length === 0) {
-          errors.push(`${MCP_PATH} : le serveur \`${context7Key}\` n'a pas de \`command\` stdio valide.`);
+          errors.push(
+            `${MCP_PATH} : le serveur \`${context7Key}\` n'a pas de \`command\` stdio valide.`,
+          );
         }
       }
     }
@@ -57,20 +59,37 @@ if (!existsSync(BOARD_PATH)) {
   errors.push(`Fichier introuvable : ${BOARD_PATH}.`);
 } else {
   const board = readFileSync(BOARD_PATH, 'utf-8');
-  const firstNonEmpty = board.split('\n').find((line) => line.trim().length > 0)?.trim() ?? '';
+  const firstNonEmpty =
+    board
+      .split('\n')
+      .find((line) => line.trim().length > 0)
+      ?.trim() ?? '';
   if (!/^['"]use client['"];?$/.test(firstNonEmpty)) {
     errors.push(
       `${BOARD_PATH} : la directive \`'use client'\` doit être la première ligne non-vide (cf. doc Next via Context7).`,
     );
   }
-  if (!/<button\b/.test(board)) {
-    errors.push(`${BOARD_PATH} doit contenir un \`<button>\`.`);
+  // Tolérance forward-compat §2.9 : le `<button>` Next initial peut avoir été
+  // extrait dans `<SimulatorControls>` (4 boutons Play/Pause/Step/Reset).
+  if (!/<button\b|<SimulatorControls\b/.test(board)) {
+    errors.push(
+      `${BOARD_PATH} doit contenir un \`<button>\` (ou les avoir extraits dans \`<SimulatorControls />\` à partir de §2.9).`,
+    );
   }
-  if (!/step\s*\(/.test(board)) {
-    errors.push(`${BOARD_PATH} doit appeler \`step(\` pour calculer la génération suivante.`);
+  // Tolérance forward-compat §2.9 : Board peut soit appeler `step(` directement
+  // (état §2.6), soit passer par `tick(` du simulator (état §2.9 — qui contient
+  // l'appel à `step` au niveau de `core/simulator.ts`).
+  if (!/step\s*\(|tick\s*\(/.test(board)) {
+    errors.push(
+      `${BOARD_PATH} doit avancer d'une génération (\`step(\` directement ou \`tick(\` via le simulator §2.9).`,
+    );
   }
-  if (!/from\s+['"]@\/core\/step['"]|from\s+['"]\.\.\/core\/step['"]/.test(board)) {
-    errors.push(`${BOARD_PATH} doit importer \`step\` depuis \`@/core/step\`.`);
+  if (
+    !/from\s+['"]@\/core\/(step|simulator)['"]|from\s+['"]\.\.\/core\/(step|simulator)['"]/.test(
+      board,
+    )
+  ) {
+    errors.push(`${BOARD_PATH} doit importer \`step\` ou le simulator depuis \`@/core/\`.`);
   }
 }
 
@@ -91,7 +110,7 @@ if (errors.length === 0) {
   console.log('   ↳ page.tsx passe le seed initial via `initialGrid`.');
   console.log('');
   console.log('💡 Concept §2.6 — un MCP au scope projet voyage avec le repo.');
-  console.log('   Ce check reste 100 % dans le repo : c\'est exactement le point.');
+  console.log("   Ce check reste 100 % dans le repo : c'est exactement le point.");
   process.exit(0);
 }
 

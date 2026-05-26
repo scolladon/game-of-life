@@ -145,11 +145,13 @@ if (!existsSync(BOARD_PATH)) {
       `${BOARD_PATH} doit appeler \`getPattern\` pour charger la grille depuis le catalogue.`,
     );
   }
-  // Reset de la génération sur changement de pattern : on cherche un setter
-  // generation(0) dans le handler de changement.
-  if (!/setGeneration\s*\(\s*0\s*\)/.test(board)) {
+  // Reset de la génération sur changement de pattern.
+  // Tolérance forward-compat §2.9 : soit `setGeneration(0)` direct (état §2.8),
+  // soit délégation à `reset(...)` du simulator (état §2.9, qui resette
+  // `generation` à 0 en interne).
+  if (!/setGeneration\s*\(\s*0\s*\)|\breset\w*\s*\(/.test(board)) {
     errors.push(
-      `${BOARD_PATH} doit remettre \`generation\` à 0 lorsque le pattern change (\`setGeneration(0)\`).`,
+      `${BOARD_PATH} doit remettre \`generation\` à 0 lorsque le pattern change (\`setGeneration(0)\` ou \`reset(...)\` du simulator §2.9).`,
     );
   }
 }

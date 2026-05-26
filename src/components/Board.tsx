@@ -1,66 +1,137 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Grid } from '@/core/grid';
 import { getPattern, type PatternName } from '@/core/patterns';
-import { step } from '@/core/step';
+import {
+  createSimulator,
+  reset as resetSimulator,
+  type SimulatorState,
+  setRunning,
+  setSpeed,
+  tick,
+} from '@/core/simulator';
 import { GenerationCounter } from './GenerationCounter';
 import { PatternSelector } from './PatternSelector';
+import { SimulatorControls } from './SimulatorControls';
 
 interface BoardProps {
   readonly initialGrid: Grid;
   readonly initialPattern?: PatternName;
+  readonly initialSpeedMs?: number;
 }
 
-export function Board({ initialGrid, initialPattern = 'blinker' }: BoardProps) {
+const CELL_SIZE = 24;
+const DEFAULT_SPEED_MS = 200;
+const ALIVE_COLOR = '#000';
+const DEAD_COLOR = '#fff';
+const GRID_LINE_COLOR = '#e4e4e7';
+
+function drawGrid(canvas: HTMLCanvasElement, grid: Grid): void {
+  const context = canvas.getContext('2d');
+  if (!context) return;
+  const rows = grid.length;
+  const cols = grid[0]?.length ?? 0;
+  canvas.width = cols * CELL_SIZE;
+  canvas.height = rows * CELL_SIZE;
+  context.fillStyle = DEAD_COLOR;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = ALIVE_COLOR;
+  for (let y = 0; y < rows; y += 1) {
+    const row = grid[y];
+    if (!row) continue;
+    for (let x = 0; x < cols; x += 1) {
+      if (row[x]) {
+        context.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      }
+    }
+  }
+  context.strokeStyle = GRID_LINE_COLOR;
+  context.lineWidth = 1;
+  for (let x = 0; x <= cols; x += 1) {
+    context.beginPath();
+    context.moveTo(x * CELL_SIZE + 0.5, 0);
+    context.lineTo(x * CELL_SIZE + 0.5, canvas.height);
+    context.stroke();
+  }
+  for (let y = 0; y <= rows; y += 1) {
+    context.beginPath();
+    context.moveTo(0, y * CELL_SIZE + 0.5);
+    context.lineTo(canvas.width, y * CELL_SIZE + 0.5);
+    context.stroke();
+  }
+}
+
+export function Board({
+  initialGrid,
+  initialPattern = 'blinker',
+  initialSpeedMs = DEFAULT_SPEED_MS,
+}: BoardProps) {
   const [pattern, setPattern] = useState<PatternName>(initialPattern);
-  const [grid, setGrid] = useState<Grid>(initialGrid);
-  const [generation, setGeneration] = useState<number>(0);
+  const [state, setState] = useState<SimulatorState>(() =>
+    createSimulator(initialGrid, initialSpeedMs),
+  );
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const handleNext = () => {
-    setGrid((current) => step(current));
-    setGeneration((n) => n + 1);
-  };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) drawGrid(canvas, state.grid);
+  }, [state.grid]);
 
-  const handlePatternChange = (name: PatternName) => {
+  useEffect(() => {
+    if (!state.isRunning) return;
+    const handle = setInterval(() => {
+      setState((current) => tick(current));
+    }, state.speedMs);
+    return () => clearInterval(handle);
+  }, [state.isRunning, state.speedMs]);
+
+  const handlePlay = useCallback(() => {
+    setState((current) => setRunning(current, true));
+  }, []);
+
+  const handlePause = useCallback(() => {
+    setState((current) => setRunning(current, false));
+  }, []);
+
+  const handleStep = useCallback(() => {
+    setState((current) => tick(current));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setState((current) => resetSimulator(current, getPattern(pattern)));
+  }, [pattern]);
+
+  const handleSpeedChange = useCallback((speedMs: number) => {
+    setState((current) => setSpeed(current, speedMs));
+  }, []);
+
+  const handlePatternChange = useCallback((name: PatternName) => {
     setPattern(name);
-    setGrid(getPattern(name));
-    setGeneration(0);
-  };
+    setState((current) => resetSimulator(current, getPattern(name)));
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <PatternSelector value={pattern} onChange={handlePatternChange} />
-        <button
-          type="button"
-          onClick={handleNext}
-          className="rounded border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
-        >
-          Next
-        </button>
-        <GenerationCounter count={generation} />
+        <GenerationCounter count={state.generation} />
       </div>
-      <div
-        role="grid"
+      <SimulatorControls
+        isRunning={state.isRunning}
+        speedMs={state.speedMs}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        onStep={handleStep}
+        onReset={handleReset}
+        onSpeedChange={handleSpeedChange}
+      />
+      <canvas
+        ref={canvasRef}
+        role="img"
         aria-label="Game of Life board"
-        className="inline-flex flex-col border border-zinc-300 dark:border-zinc-700"
-      >
-        {grid.map((row, y) => (
-          <div key={y} role="row" className="flex">
-            {row.map((alive, x) => (
-              <div
-                key={x}
-                role="gridcell"
-                aria-label={alive ? 'alive' : 'dead'}
-                className={`h-6 w-6 border border-zinc-200 dark:border-zinc-800 ${
-                  alive ? 'bg-black dark:bg-white' : 'bg-white dark:bg-black'
-                }`}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
+        className="border border-zinc-300 dark:border-zinc-700"
+      />
     </div>
   );
 }
