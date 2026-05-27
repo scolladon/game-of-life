@@ -43,7 +43,7 @@ if (!existsSync(PAGE_PATH)) {
   const frenchKeywords = /(jeu|simulation|automate|cellulaire|Conway|jouer|d[ée]marrer|vie)/i;
   if (!frenchKeywords.test(content)) {
     errors.push(
-      "La page ne contient aucun mot-clé français attendu (jeu, simulation, automate, cellulaire, Conway, jouer, démarrer, vie)",
+      'La page ne contient aucun mot-clé français attendu (jeu, simulation, automate, cellulaire, Conway, jouer, démarrer, vie)',
     );
   }
 }
@@ -51,10 +51,10 @@ if (!existsSync(PAGE_PATH)) {
 if (errors.length === 0) {
   console.log('✅ check-1.4');
   console.log("   ↳ Page d'accueil Game of Life en place, boilerplate Next/Vercel nettoyé.");
-  console.log("");
+  console.log('');
   console.log("💡 Concept §1.4 — la boucle d'agent s'observe en session live.");
   console.log("   Ce check valide le résultat ; le vrai apprentissage est l'observation");
-  console.log("   pendant la session Claude Code (Read → Edit → fin).");
+  console.log('   pendant la session Claude Code (Read → Edit → fin).');
   process.exit(0);
 }
 

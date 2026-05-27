@@ -11,7 +11,7 @@
 //   - aucun secret en clair n'a été glissé dans CLAUDE.md.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
 const CLAUDE_MD = 'CLAUDE.md';
 const GRID_TS = 'src/core/grid.ts';
@@ -26,12 +26,12 @@ if (!existsSync(CLAUDE_MD)) {
   const content = readFileSync(CLAUDE_MD, 'utf-8');
 
   if (!/@AGENTS\.md/.test(content)) {
-    errors.push("La référence `@AGENTS.md` a disparu de CLAUDE.md (à conserver).");
+    errors.push('La référence `@AGENTS.md` a disparu de CLAUDE.md (à conserver).');
   }
 
   if (!/##\s+Mod[èe]les/i.test(content)) {
     errors.push(
-      "La section `## Modèles…` de §2.1 a disparu de CLAUDE.md (régression — étendre, pas écraser).",
+      'La section `## Modèles…` de §2.1 a disparu de CLAUDE.md (régression — étendre, pas écraser).',
     );
   }
 
@@ -52,10 +52,12 @@ if (!existsSync(CLAUDE_MD)) {
   if (archMatch) {
     const arch = archMatch[0];
     const mentionsCore = /\bcore\/?\b/i.test(arch);
-    const mentionsPurity = /(pur(e|es|es?)?|sans\s+d[ée]pendance|z[ée]ro\s+d[ée]pendance)/i.test(arch);
+    const mentionsPurity = /(pur(e|es|es?)?|sans\s+d[ée]pendance|z[ée]ro\s+d[ée]pendance)/i.test(
+      arch,
+    );
     if (!mentionsCore || !mentionsPurity) {
       errors.push(
-        "La section Architecture doit mentionner `core/` ET sa contrainte de pureté (`pur`, `sans dépendance` ou `zéro dépendance`).",
+        'La section Architecture doit mentionner `core/` ET sa contrainte de pureté (`pur`, `sans dépendance` ou `zéro dépendance`).',
       );
     }
   }
@@ -66,7 +68,7 @@ if (!existsSync(CLAUDE_MD)) {
     /ANTHROPIC_API_KEY\s*[:=]\s*["'][^"']+["']/.test(content)
   ) {
     errors.push(
-      "Secret détecté dans CLAUDE.md (sk-ant-… ou ANTHROPIC_API_KEY). Les secrets ne vivent pas dans CLAUDE.md.",
+      'Secret détecté dans CLAUDE.md (sk-ant-… ou ANTHROPIC_API_KEY). Les secrets ne vivent pas dans CLAUDE.md.',
     );
   }
 }

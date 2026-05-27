@@ -21,13 +21,13 @@ if (!existsSync(CLAUDE_MD)) {
 
   // 1. Garde-fou : @AGENTS.md préservé.
   if (!/@AGENTS\.md/.test(content)) {
-    errors.push("La référence `@AGENTS.md` a disparu de CLAUDE.md (à conserver).");
+    errors.push('La référence `@AGENTS.md` a disparu de CLAUDE.md (à conserver).');
   }
 
   // 2. Section dédiée aux modèles.
   const sectionMatch = content.match(/##\s+Mod[èe]les[^\n]*\n([\s\S]+?)(?=\n##\s|\n#\s|$)/i);
   if (!sectionMatch) {
-    errors.push("Aucune section `## Modèles…` trouvée dans CLAUDE.md.");
+    errors.push('Aucune section `## Modèles…` trouvée dans CLAUDE.md.');
   } else {
     const section = sectionMatch[1];
 
@@ -50,7 +50,10 @@ if (!existsSync(CLAUDE_MD)) {
       .filter((line) => line.startsWith('|') && line.endsWith('|'))
       .filter((line) => !/^\|\s*[-:]+\s*(\|\s*[-:]+\s*)+\|$/.test(line));
     const dataRows = tableRows.filter((line) => {
-      const cells = line.split('|').slice(1, -1).map((c) => c.trim());
+      const cells = line
+        .split('|')
+        .slice(1, -1)
+        .map((c) => c.trim());
       return cells.length >= 3 && cells.every((c) => c.length > 0);
     });
     // On retire l'en-tête (1ère ligne data non séparateur).
@@ -65,12 +68,13 @@ if (!existsSync(CLAUDE_MD)) {
     const switchMechanisms = /(\/model\b|--model\b|settings\.json)/;
     if (!switchMechanisms.test(section)) {
       errors.push(
-        "Aucun mécanisme de changement de modèle documenté (attendu : `/model`, `--model` ou `settings.json`).",
+        'Aucun mécanisme de changement de modèle documenté (attendu : `/model`, `--model` ou `settings.json`).',
       );
     }
 
     // 6. Mention de l'extended thinking.
-    const thinking = /(extended\s+thinking|niveau\s+d['’]effort|MAX_THINKING_TOKENS|Opt\+T|Alt\+T)/i;
+    const thinking =
+      /(extended\s+thinking|niveau\s+d['’]effort|MAX_THINKING_TOKENS|Opt\+T|Alt\+T)/i;
     if (!thinking.test(section)) {
       errors.push(
         "L'extended thinking n'est pas évoqué (attendu : `extended thinking`, `Opt+T`, `MAX_THINKING_TOKENS`…).",
@@ -82,11 +86,11 @@ if (!existsSync(CLAUDE_MD)) {
 if (errors.length === 0) {
   console.log('✅ check-2.1');
   console.log('   ↳ CLAUDE.md documente les modèles, la grille de décision,');
-  console.log('     le switch ad-hoc et l\'extended thinking.');
+  console.log("     le switch ad-hoc et l'extended thinking.");
   console.log('');
   console.log('💡 Concept §2.1 — le projet documente ses propres règles pour que');
   console.log('   Claude Code les applique tout seul. La grille est une *décision*');
-  console.log('   d\'équipe, pas une encyclopédie des modèles.');
+  console.log("   d'équipe, pas une encyclopédie des modèles.");
   process.exit(0);
 }
 

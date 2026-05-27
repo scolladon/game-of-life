@@ -9,11 +9,17 @@
 // Particularité : ce check **sort du repo** pour lire ~/.claude/plugins/*.
 // C'est délibéré — un plugin Claude Code s'installe au scope utilisateur
 // (cf. anthropics/claude-code#62174), il n'est jamais versionné dans le repo.
-// Conséquence : ce check est local-only (ne tournera pas en CI).
+// Conséquence : ce check est local-only — il skip explicitement en CI.
 
 import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+
+// Skip on CI: aucun plugin Claude Code n'est installé sur un runner sans état.
+if (process.env.CI === 'true') {
+  console.log('⏭️  check-2.5 (skipped on CI — plugin scope user, cf. en-tête).');
+  process.exit(0);
+}
 
 const MARKETPLACES_PATH = join(homedir(), '.claude', 'plugins', 'known_marketplaces.json');
 const INSTALLED_PATH = join(homedir(), '.claude', 'plugins', 'installed_plugins.json');
@@ -35,7 +41,10 @@ if (!existsSync(MARKETPLACES_PATH)) {
   );
 } else {
   try {
-    const marketplaces = JSON.parse(readFileSync(MARKETPLACES_PATH, 'utf-8')) as Record<string, unknown>;
+    const marketplaces = JSON.parse(readFileSync(MARKETPLACES_PATH, 'utf-8')) as Record<
+      string,
+      unknown
+    >;
     if (!Object.hasOwn(marketplaces, MARKETPLACE_NAME)) {
       errors.push(
         `Marketplace \`${MARKETPLACE_NAME}\` absent de ${MARKETPLACES_PATH}. Lancez : /plugin marketplace add anthropics/claude-plugins-official`,
@@ -48,9 +57,7 @@ if (!existsSync(MARKETPLACES_PATH)) {
 
 // 2. Plugin installé.
 if (!existsSync(INSTALLED_PATH)) {
-  errors.push(
-    `Fichier introuvable : ${INSTALLED_PATH}. Aucun plugin n'est installé sur ce poste.`,
-  );
+  errors.push(`Fichier introuvable : ${INSTALLED_PATH}. Aucun plugin n'est installé sur ce poste.`);
 } else {
   try {
     const installed = JSON.parse(readFileSync(INSTALLED_PATH, 'utf-8')) as InstalledPlugins;
@@ -70,7 +77,9 @@ if (!existsSync(INSTALLED_PATH)) {
 
 // 3. Board.tsx existe + exporte `Board`.
 if (!existsSync(BOARD_PATH)) {
-  errors.push(`Fichier introuvable : ${BOARD_PATH}. Demandez à Claude de créer le composant (cf. prompts/2.5.md).`);
+  errors.push(
+    `Fichier introuvable : ${BOARD_PATH}. Demandez à Claude de créer le composant (cf. prompts/2.5.md).`,
+  );
 } else {
   const board = readFileSync(BOARD_PATH, 'utf-8');
   if (!/export\s+(default\s+)?function\s+Board\b|export\s+\{[^}]*\bBoard\b[^}]*\}/.test(board)) {
