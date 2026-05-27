@@ -128,7 +128,9 @@ if (!existsSync(SELECTOR_PATH)) {
   // Tolérance §3.2 : la bibliothèque RLE généralise les patterns en
   // strings nommées (au-delà du tuple fermé `PatternName`).
   if (!/value\s*:\s*(PatternName|string)\b/.test(selector)) {
-    errors.push(`${SELECTOR_PATH} doit typer une prop \`value: PatternName\` (ou \`string\` à partir de §3.2).`);
+    errors.push(
+      `${SELECTOR_PATH} doit typer une prop \`value: PatternName\` (ou \`string\` à partir de §3.2).`,
+    );
   }
   if (!/onChange\s*:\s*\(/.test(selector)) {
     errors.push(`${SELECTOR_PATH} doit exposer un callback \`onChange\`.`);

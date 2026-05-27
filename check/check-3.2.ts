@@ -60,8 +60,11 @@ interface PatternLibraryModule {
 }
 
 async function checkRleParser(): Promise<void> {
-  if (!checkFile(RLE_PATH, "Crée le parser RLE (parseRle: string → Grid).")) return;
-  if (!checkFile(RLE_TEST_PATH, 'Tout module de core/ DOIT avoir son test sibling (cf. garde §2.4).')) return;
+  if (!checkFile(RLE_PATH, 'Crée le parser RLE (parseRle: string → Grid).')) return;
+  if (
+    !checkFile(RLE_TEST_PATH, 'Tout module de core/ DOIT avoir son test sibling (cf. garde §2.4).')
+  )
+    return;
 
   try {
     const url = new URL(`../${RLE_PATH}`, import.meta.url).href;
@@ -73,7 +76,9 @@ async function checkRleParser(): Promise<void> {
     // Glider canonique — vérification d'intégration.
     const glider = mod.parseRle('x = 3, y = 3\nbob$2bo$3o!');
     if (glider.length !== 3 || glider[0].length !== 3) {
-      errors.push(`${RLE_PATH} : parseRle("glider") doit retourner une grille 3×3 (reçu ${glider.length}×${glider[0]?.length ?? '?'}).`);
+      errors.push(
+        `${RLE_PATH} : parseRle("glider") doit retourner une grille 3×3 (reçu ${glider.length}×${glider[0]?.length ?? '?'}).`,
+      );
       return;
     }
     const alive = glider.flat().filter((c) => c).length;
@@ -86,7 +91,10 @@ async function checkRleParser(): Promise<void> {
 }
 
 async function checkPatternLibrary(): Promise<void> {
-  if (!checkFile(LIB_PATH, 'Crée la bibliothèque (getPatternLibrary: () => PatternLibraryEntry[]).')) return;
+  if (
+    !checkFile(LIB_PATH, 'Crée la bibliothèque (getPatternLibrary: () => PatternLibraryEntry[]).')
+  )
+    return;
   if (!checkFile(LIB_TEST_PATH, 'Test sibling obligatoire pour pattern-library.ts.')) return;
 
   try {
@@ -126,10 +134,18 @@ async function checkPatternLibrary(): Promise<void> {
 }
 
 function checkPatternSelector(): void {
-  if (!checkFile(SELECTOR_PATH, 'Le composant PatternSelector doit consommer la bibliothèque enrichie.')) return;
+  if (
+    !checkFile(
+      SELECTOR_PATH,
+      'Le composant PatternSelector doit consommer la bibliothèque enrichie.',
+    )
+  )
+    return;
   const content = readFileSync(SELECTOR_PATH, 'utf-8');
   if (!/from\s+['"]@\/core\/pattern-library['"]/.test(content)) {
-    errors.push(`${SELECTOR_PATH} doit importer depuis \`@/core/pattern-library\` (la bibliothèque enrichie de §3.2).`);
+    errors.push(
+      `${SELECTOR_PATH} doit importer depuis \`@/core/pattern-library\` (la bibliothèque enrichie de §3.2).`,
+    );
   }
   if (!/<optgroup\b/.test(content)) {
     errors.push(`${SELECTOR_PATH} doit grouper les patterns par catégorie via \`<optgroup>\`.`);
@@ -148,7 +164,9 @@ function checkCoverage(): void {
     return;
   }
   if (!existsSync(COVERAGE_PATH)) {
-    errors.push(`Couverture introuvable : ${COVERAGE_PATH} (lancer \`npm run test -- --coverage\`).`);
+    errors.push(
+      `Couverture introuvable : ${COVERAGE_PATH} (lancer \`npm run test -- --coverage\`).`,
+    );
     return;
   }
   interface CoverageSummary {
@@ -162,7 +180,12 @@ function checkCoverage(): void {
   const raw = readFileSync(COVERAGE_PATH, 'utf-8');
   const summary = JSON.parse(raw) as CoverageSummary;
   const t = summary.total;
-  if (t.statements.pct < 100 || t.branches.pct < 100 || t.functions.pct < 100 || t.lines.pct < 100) {
+  if (
+    t.statements.pct < 100 ||
+    t.branches.pct < 100 ||
+    t.functions.pct < 100 ||
+    t.lines.pct < 100
+  ) {
     errors.push(
       `Couverture src/core/ < 100 % (statements ${t.statements.pct}%, branches ${t.branches.pct}%, functions ${t.functions.pct}%, lines ${t.lines.pct}%). Complète les tests jusqu'à 100 %.`,
     );
@@ -178,12 +201,14 @@ async function main(): Promise<void> {
   if (errors.length === 0) {
     console.log('✅ check-3.2');
     console.log(`   ↳ Parser RLE présent (${RLE_PATH}) + test sibling.`);
-    console.log(`   ↳ Bibliothèque enrichie (${REQUIRED_PATTERNS.length}+ patterns, ${REQUIRED_CATEGORIES.length} catégories).`);
+    console.log(
+      `   ↳ Bibliothèque enrichie (${REQUIRED_PATTERNS.length}+ patterns, ${REQUIRED_CATEGORIES.length} catégories).`,
+    );
     console.log(`   ↳ PatternSelector consomme \`getPatternLibrary()\` groupé par catégorie.`);
-    console.log("   ↳ Couverture src/core/ = 100 % (statements / branches / functions / lines).");
+    console.log('   ↳ Couverture src/core/ = 100 % (statements / branches / functions / lines).');
     console.log('');
-    console.log("💡 Concept §3.2 — Serena MCP expose un langserver au LLM : navigation");
-    console.log("   et édition par SYMBOLE (find_symbol, replace_symbol_body, rename_symbol)");
+    console.log('💡 Concept §3.2 — Serena MCP expose un langserver au LLM : navigation');
+    console.log('   et édition par SYMBOLE (find_symbol, replace_symbol_body, rename_symbol)');
     console.log('   plutôt que par regex. Gain de précision sur les refactors cross-fichiers,');
     console.log('   gain de tokens vs lecture intégrale des fichiers.');
     process.exit(0);

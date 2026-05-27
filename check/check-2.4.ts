@@ -41,7 +41,7 @@ if (settings) {
   // Régression-guard §2.2 : permissions inchangées.
   const allow = settings.permissions?.allow;
   if (!Array.isArray(allow) || allow.length === 0) {
-    errors.push("La clé `permissions.allow` de §2.2 a disparu de .claude/settings.json.");
+    errors.push('La clé `permissions.allow` de §2.2 a disparu de .claude/settings.json.');
   }
 
   // 2. PostToolUse Biome.

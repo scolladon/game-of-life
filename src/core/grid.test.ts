@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cloneGrid, createGrid, getCell, type Grid } from './grid';
+import { cloneGrid, createGrid, type Grid, getCell } from './grid';
 
 describe('createGrid', () => {
   it('produit les bonnes dimensions', () => {

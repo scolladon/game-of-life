@@ -6,12 +6,7 @@ import { parseRle } from './rle';
 // Avantages : lisible côté code, testable indépendamment du parser, immutable
 // (chaque appel à getPatternLibrary() retourne des copies indépendantes).
 
-export const PATTERN_CATEGORIES = [
-  'still-life',
-  'oscillator',
-  'spaceship',
-  'gun',
-] as const;
+export const PATTERN_CATEGORIES = ['still-life', 'oscillator', 'spaceship', 'gun'] as const;
 
 export type PatternCategory = (typeof PATTERN_CATEGORIES)[number];
 

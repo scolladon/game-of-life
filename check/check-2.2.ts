@@ -31,9 +31,12 @@ if (!existsSync(SETTINGS)) {
   }
 
   // Anti-leak : pas de secret en clair dans le settings versionné.
-  if (/sk-ant-[A-Za-z0-9_-]{8,}/.test(raw) || /ANTHROPIC_API_KEY\s*[:=]\s*["'][^"']+["']/.test(raw)) {
+  if (
+    /sk-ant-[A-Za-z0-9_-]{8,}/.test(raw) ||
+    /ANTHROPIC_API_KEY\s*[:=]\s*["'][^"']+["']/.test(raw)
+  ) {
     errors.push(
-      "Secret détecté dans settings.json (sk-ant-… ou ANTHROPIC_API_KEY). Les secrets vont dans `.claude/settings.local.json` (ignoré par git).",
+      'Secret détecté dans settings.json (sk-ant-… ou ANTHROPIC_API_KEY). Les secrets vont dans `.claude/settings.local.json` (ignoré par git).',
     );
   }
 
@@ -42,7 +45,7 @@ if (!existsSync(SETTINGS)) {
     const permissions = root.permissions as Record<string, unknown> | undefined;
 
     if (!permissions || typeof permissions !== 'object') {
-      errors.push("Clé `permissions` absente ou invalide dans settings.json.");
+      errors.push('Clé `permissions` absente ou invalide dans settings.json.');
     } else {
       const allow = permissions.allow;
       const deny = permissions.deny;
@@ -50,22 +53,26 @@ if (!existsSync(SETTINGS)) {
 
       // allow non vide + couvre npm/tsx
       if (!Array.isArray(allow) || allow.length === 0) {
-        errors.push("`permissions.allow` doit être un tableau non vide.");
+        errors.push('`permissions.allow` doit être un tableau non vide.');
       } else {
         const allowStr = allow.filter((x): x is string => typeof x === 'string');
         const hasNpm = allowStr.some((rule) => /^Bash\(npm/i.test(rule));
         const hasTsx = allowStr.some((rule) => /^Bash\(tsx/i.test(rule));
         if (!hasNpm) {
-          errors.push("`permissions.allow` doit contenir une règle `Bash(npm:*)` (scripts du projet).");
+          errors.push(
+            '`permissions.allow` doit contenir une règle `Bash(npm:*)` (scripts du projet).',
+          );
         }
         if (!hasTsx) {
-          errors.push("`permissions.allow` doit contenir une règle `Bash(tsx:*)` (checks TypeScript).");
+          errors.push(
+            '`permissions.allow` doit contenir une règle `Bash(tsx:*)` (checks TypeScript).',
+          );
         }
       }
 
       // deny non vide + au moins une règle destructrice
       if (!Array.isArray(deny) || deny.length === 0) {
-        errors.push("`permissions.deny` doit être un tableau non vide.");
+        errors.push('`permissions.deny` doit être un tableau non vide.');
       } else {
         const denyStr = deny.filter((x): x is string => typeof x === 'string');
         const hasDestructive = denyStr.some((rule) =>
@@ -73,7 +80,7 @@ if (!existsSync(SETTINGS)) {
         );
         if (!hasDestructive) {
           errors.push(
-            "`permissions.deny` doit bloquer au moins une opération destructrice (`rm -rf` ou `git push --force`).",
+            '`permissions.deny` doit bloquer au moins une opération destructrice (`rm -rf` ou `git push --force`).',
           );
         }
       }
@@ -81,7 +88,7 @@ if (!existsSync(SETTINGS)) {
       // ask déclaré (clé présente, même si tableau vide)
       if (!('ask' in permissions) || !Array.isArray(ask)) {
         errors.push(
-          "`permissions.ask` doit être déclaré (au minimum un tableau vide) — on enseigne les 3 buckets allow/deny/ask.",
+          '`permissions.ask` doit être déclaré (au minimum un tableau vide) — on enseigne les 3 buckets allow/deny/ask.',
         );
       }
     }
@@ -99,7 +106,7 @@ if (!existsSync(GITIGNORE)) {
     /^\.claude\/.*local.*\s*$/im.test(gitignore);
   if (!ignoresLocal) {
     errors.push(
-      "`.gitignore` doit ignorer `.claude/settings.local.json` (ou un glob équivalent) — sinon les overrides perso/secrets finissent versionnés.",
+      '`.gitignore` doit ignorer `.claude/settings.local.json` (ou un glob équivalent) — sinon les overrides perso/secrets finissent versionnés.',
     );
   }
 }
@@ -110,7 +117,7 @@ if (errors.length === 0) {
   console.log('     .gitignore protège les overrides locaux.');
   console.log('');
   console.log('💡 Concept §2.2 — un settings.json projet versionné fixe le contrat');
-  console.log('   d\'équipe (ce que Claude a le droit de faire dans CE projet). Les');
+  console.log("   d'équipe (ce que Claude a le droit de faire dans CE projet). Les");
   console.log('   overrides perso vont dans settings.local.json, jamais commité.');
   process.exit(0);
 }

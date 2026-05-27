@@ -18,7 +18,10 @@ const CATEGORY_LABELS: Readonly<Record<PatternCategory, string>> = {
 export function PatternSelector({ value, onChange }: PatternSelectorProps) {
   const grouped = useMemo(() => {
     const lib = getPatternLibrary();
-    const map = new Map<PatternCategory, { readonly name: string; readonly displayName: string }[]>();
+    const map = new Map<
+      PatternCategory,
+      { readonly name: string; readonly displayName: string }[]
+    >();
     for (const entry of lib) {
       const bucket = map.get(entry.category) ?? [];
       bucket.push({ name: entry.name, displayName: entry.displayName });
