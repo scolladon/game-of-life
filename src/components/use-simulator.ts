@@ -46,8 +46,36 @@ interface SimulatorHook {
   readonly handlers: SimulatorHandlers;
 }
 
+export const BOARD_SIZE = 30;
+
+// Centre un pattern (bounding box minimale issue du RLE) dans un plateau
+// `boardSize × boardSize`. Si le pattern dépasse, le plateau s'agrandit
+// (gosper-glider-gun) — le plateau ne rétrécit jamais.
+export function embedInBoard(pattern: Grid, boardSize: number = BOARD_SIZE): Grid {
+  const patternWidth = pattern[0]?.length ?? 0;
+  const patternHeight = pattern.length;
+  const width = Math.max(boardSize, patternWidth);
+  const height = Math.max(boardSize, patternHeight);
+  const offsetX = Math.floor((width - patternWidth) / 2);
+  const offsetY = Math.floor((height - patternHeight) / 2);
+  const board: boolean[][] = Array.from({ length: height }, () =>
+    Array.from({ length: width }, () => false),
+  );
+  for (let y = 0; y < patternHeight; y += 1) {
+    const row = pattern[y];
+    if (!row) continue;
+    for (let x = 0; x < patternWidth; x += 1) {
+      if (row[x]) {
+        const target = board[offsetY + y];
+        if (target) target[offsetX + x] = true;
+      }
+    }
+  }
+  return board;
+}
+
 function gridFor(name: string): Grid {
-  return getPatternLibraryEntry(name).grid;
+  return embedInBoard(getPatternLibraryEntry(name).grid);
 }
 
 export function useSimulator({
