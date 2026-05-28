@@ -90,7 +90,8 @@ if (!existsSync(BOARD_PATH)) {
   }
 }
 
-// 4. page.tsx importe Board.
+// 4. page.tsx importe Board + déclare un plateau ≥ 20×20.
+const MIN_BOARD_SIZE = 20;
 if (!existsSync(PAGE_PATH)) {
   errors.push(`Fichier introuvable : ${PAGE_PATH}.`);
 } else {
@@ -100,6 +101,39 @@ if (!existsSync(PAGE_PATH)) {
   }
   if (!/<Board\b/.test(page)) {
     errors.push(`${PAGE_PATH} doit rendre \`<Board ... />\`.`);
+  }
+  // Plateau de jeu ≥ MIN_BOARD_SIZE × MIN_BOARD_SIZE (§2.5 — taille fixe du jeu,
+  // indépendante du pattern). Trois traces acceptées :
+  //   a. constante `BOARD_SIZE >= 20`,
+  //   b. appel direct `createGrid(N, M)` avec N et M >= 20,
+  //   c. tableau littéral d'au moins 20 lignes contenant chacune ≥ 20 booléens
+  //      (cas array literal).
+  const boardSizeMatch = page.match(/BOARD_SIZE\s*[:=]\s*(\d+)/);
+  const createGridMatches = Array.from(page.matchAll(/createGrid\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/g));
+  const arrayLiteralOk = (() => {
+    const matches = page.match(/\[\s*(?:\[[^\]]*\]\s*,?\s*){20,}\]/);
+    return !!matches;
+  })();
+
+  let boardSizeOk = false;
+  if (boardSizeMatch?.[1]) {
+    boardSizeOk = Number.parseInt(boardSizeMatch[1], 10) >= MIN_BOARD_SIZE;
+  }
+  if (!boardSizeOk && createGridMatches.length > 0) {
+    boardSizeOk = createGridMatches.some((m) => {
+      const w = Number.parseInt(m[1] ?? '0', 10);
+      const h = Number.parseInt(m[2] ?? '0', 10);
+      return w >= MIN_BOARD_SIZE && h >= MIN_BOARD_SIZE;
+    });
+  }
+  if (!boardSizeOk && arrayLiteralOk) boardSizeOk = true;
+
+  if (!boardSizeOk) {
+    errors.push(
+      `${PAGE_PATH} doit poser un plateau de jeu d'au moins ${MIN_BOARD_SIZE}×${MIN_BOARD_SIZE} ` +
+        `(constante \`BOARD_SIZE\` >= ${MIN_BOARD_SIZE} OU \`createGrid(N, M)\` avec N et M >= ${MIN_BOARD_SIZE}). ` +
+        `Le pattern (blinker) est centré dans ce plateau — taille fixe du jeu, pas la bounding box du pattern.`,
+    );
   }
 }
 
