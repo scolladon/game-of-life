@@ -81,12 +81,15 @@ if (!existsSync(BOARD_PATH)) {
   // l'appel à `step` au niveau de `core/simulator.ts`).
   // Tolérance forward-compat §3.1 : la mécanique peut vivre dans le custom hook
   // extrait `use-simulator.ts`. On agrège les surfaces avant la recherche.
+  // Tolérance forward-compat §3.3 : la fonction d'avancement peut être nommée
+  // `tickWithRule`, `tickOnce`, etc. — on accepte tout identifiant qui commence
+  // par `step` ou `tick` (mot-frontière à gauche, suffixe libre, puis `(`).
   const hookPath = 'src/components/use-simulator.ts';
   const hook = existsSync(hookPath) ? readFileSync(hookPath, 'utf-8') : '';
   const boardSurface = `${board}\n${hook}`;
-  if (!/step\s*\(|tick\s*\(/.test(boardSurface)) {
+  if (!/\b(step|tick)\w*\s*\(/.test(boardSurface)) {
     errors.push(
-      `${BOARD_PATH} (ou son hook extrait) doit avancer d'une génération (\`step(\` directement ou \`tick(\` via le simulator §2.9).`,
+      `${BOARD_PATH} (ou son hook extrait) doit avancer d'une génération (appel à \`step…(\` ou \`tick…(\` — y compris \`tickWithRule(\` via le simulator §2.9/§3.3).`,
     );
   }
   if (
